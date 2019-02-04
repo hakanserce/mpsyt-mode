@@ -1,0 +1,9 @@
+* Introduction
+~mpsyt-mode~ mode is an emacs mode for controlling mpsyt, a command line youtube interface.
+
+* TODO Installation
+  - State "TODO"       from              [2019-02-04 Mon 00:36]
+TBD
+
+* TODO Usage
+TBD
