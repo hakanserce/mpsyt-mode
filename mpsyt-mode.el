@@ -15,15 +15,29 @@
 (defvar mpsyt-mode-map
   (let ((map (nconc (make-sparse-keymap) comint-mode-map)))
     (define-key map "\t" 'completion-at-point)
-    (define-key map "\C-p" '(comint-send-input t t))
-    (define-key map (kbd "C-M-p") '(message "Hello!"))
+    (define-key map (kbd "C-c C-n") 'mpsyt-mode-next-track)
+    (define-key map (kbd "C-c C-p") 'mpsyt-mode-previous-track)
     map)
   "Basic mode map for mpsyt-mode.")
+
+(defun mpsyt-mode-next-track ()
+  "Sends the command to move to the next song in the playlist during playback."
+  (interactive)
+  (mpsyt-mode--send-command "n"))
+
+(defun mpsyt-mode-previous-track ()
+  "Sends the command to move to the previous song in the playlist during playback."
+  (interactive)
+  (mpsyt-mode--send-command "p"))
+
+(defun mpsyt-mode--send-command (command)
+  "Sends a string COMMAND to the underlying mpsyt process."
+  (comint-send-string nil command))
 
 (defvar mpsyt-mode-prompt-regexp "^>"
   "Prompt for mpsyt command.")
 
-(defun mpsyt-mode-run-mpsyt ()
+(defun mpsyt ()
   "Run mpsyt inside Emacs."
   (interactive)
   (let* ((mpsyt-program mpsyt-mode-command)
@@ -47,7 +61,7 @@
 
 
 (define-derived-mode mpsyt-mode comint-mode "mpsyt"
-  "Major mode for `run-mpsyt'.
+  "Major mode for `mpsyt'.
 
 
 \\<mpsyt-mode-map>"
@@ -78,6 +92,6 @@
        
   
                          
-
+(provide 'mpsyt-mode)
 
 ;;; mpsyt-mode.el ends here
