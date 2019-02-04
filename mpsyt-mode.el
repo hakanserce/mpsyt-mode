@@ -10,18 +10,20 @@
   "The command to run mpsyt.")
 
 (defvar mpsyt-mode-command-arguments '()
-  "Command line arguments to pass to the mpsty command.")
+  "Command line arguments to pass to the mpsyt command.")
 
 (defvar mpsyt-mode-map
   (let ((map (nconc (make-sparse-keymap) comint-mode-map)))
     (define-key map "\t" 'completion-at-point)
+    (define-key map "\C-p" '(comint-send-input t t))
+    (define-key map (kbd "C-M-p") '(message "Hello!"))
     map)
   "Basic mode map for mpsyt-mode.")
 
 (defvar mpsyt-mode-prompt-regexp "^>"
   "Prompt for mpsyt command.")
 
-(defun run-mpsyt ()
+(defun mpsyt-mode-run-mpsyt ()
   "Run mpsyt inside Emacs."
   (interactive)
   (let* ((mpsyt-program mpsyt-mode-command)
@@ -40,7 +42,9 @@
 (defun mpsyt-mode--initialize ()
   "Helper function to initialize mpsyt."
   (setq comint-process-echoes t)
-  (setq comint-use-prompt-regexp t))
+  (setq comint-use-prompt-regexp t)
+  (setq comint-input-sender-no-newline t))
+
 
 (define-derived-mode mpsyt-mode comint-mode "mpsyt"
   "Major mode for `run-mpsyt'.
@@ -54,7 +58,7 @@
   (setq comint-prompt-read-only t)
   ;; this makes it so commands like M-{ and M-} works.
   (set (make-local-variable 'paragraph-separate) "\\'")
-  (set (make-local-variable 'font-lock-defaults) '(mpsyt-mode---font-lock-keywords t))
+  (set (make-local-variable 'font-lock-defaults) '(mpsyt-mode--font-lock-keywords t))
   (set (make-local-variable 'paragraph-start) mpsyt-mode-prompt-regexp))
 
 (defconst mpsyt-mode--keywords
