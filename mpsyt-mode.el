@@ -13,27 +13,22 @@
   "Command line arguments to pass to the mpsyt command.")
 
 (defvar mpsyt-mode-map
-  (let ((map (nconc (make-sparse-keymap) comint-mode-map)))
-    (define-key map "\t" 'completion-at-point)
-    (define-key map (kbd "C-c C-n") 'mpsyt-mode-next-track)
-    (define-key map (kbd "C-c C-p") 'mpsyt-mode-previous-track)
-    map)
   "Basic mode map for mpsyt-mode.")
 
-(defun mpsyt-mode-next-track ()
-  "Sends the command to move to the next song in the playlist during playback."
-  (interactive)
-  (mpsyt-mode--send-command ">"))
-
-(defun mpsyt-mode-previous-track ()
-  "Sends the command to move to the previous song in the playlist during playback."
-  (interactive)
-  (mpsyt-mode--send-command "<"))
+(defun mpsyt-mode--define-action (action-symbol action-command action-doc)
+  "Function to define an action (ACTION-SYMBOL) to send ACTION-COMMAND to mpsyt.  ACTION-DOC is the documentation for action."
+  (eval `(defun ,action-symbol ()
+    ,(format "Send a command %s to mpsyt." action-doc)
+    (interactive)
+    (mpsyt-mode--send-command ,action-command))))
 
 (defun mpsyt-mode--send-command (command)
   "Sends a string COMMAND to the underlying mpsyt process."
   (insert command)
   (comint-send-input t t))
+
+(defvar mpsyt-mode--playback-actions
+  "Actions available during playback.")
 
 (defvar mpsyt-mode-prompt-regexp "^>"
   "Prompt for mpsyt command.")
@@ -58,7 +53,22 @@
   "Helper function to initialize mpsyt."
   (setq comint-process-echoes t)
   (setq comint-use-prompt-regexp t)
-  (setq comint-input-sender-no-newline t))
+  (setq comint-input-sender-no-newline t)
+  (setq mpsyt-mode--playback-actions
+      '((mpsyt-mode-seek-forward (kbd "ESC [ C") "seek forward")
+       (mpsyt-mode-seek-backward (kbd "ESC [ D") "seek backward")
+       (mpsyt-mode-next-track ">" "next track")
+       (mpsyt-mode-previous-track "<" "previous track")
+       (mpsyt-mode-pause " " "pause")))
+  (setq mpsyt-mode-map (let ((map (nconc (make-sparse-keymap) comint-mode-map)))
+    (define-key map "\t" 'completion-at-point)
+    (define-key map (kbd "C-c C-n") 'mpsyt-mode-next-track)
+    (define-key map (kbd "C-c C-p") 'mpsyt-mode-previous-track)
+    (define-key map (kbd "C-c C-f") 'mpsyt-mode-seek-forward)
+    (define-key map (kbd "C-c C-b") 'mpsyt-mode-seek-backward)
+    map))
+  (mapc (lambda (alist) (apply 'mpsyt-mode--define-action alist)) mpsyt-mode--playback-actions))
+
 
 
 (define-derived-mode mpsyt-mode comint-mode "mpsyt"
