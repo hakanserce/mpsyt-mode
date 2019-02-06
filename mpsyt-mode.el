@@ -13,6 +13,7 @@
   "Command line arguments to pass to the mpsyt command.")
 
 (defvar mpsyt-mode-map
+   (nconc (make-sparse-keymap) comint-mode-map)
   "Basic mode map for mpsyt-mode.")
 
 (defun mpsyt-mode--define-action (action-symbol action-command action-doc)
@@ -61,13 +62,10 @@
        (mpsyt-mode-previous-track "<" "previous track")
        (mpsyt-mode-pause " " "pause")))
   (mapc (lambda (alist) (apply 'mpsyt-mode--define-action alist)) mpsyt-mode--playback-actions)
-  (setq mpsyt-mode-map (let ((map (nconc (make-sparse-keymap) comint-mode-map)))
-    (define-key map "\t" 'completion-at-point)
-    (define-key map (kbd "C-c C-n") 'mpsyt-mode-next-track)
-    (define-key map (kbd "C-c C-p") 'mpsyt-mode-previous-track)
-    (define-key map (kbd "C-c C-f") 'mpsyt-mode-seek-forward)
-    (define-key map (kbd "C-c C-b") 'mpsyt-mode-seek-backward)
-    map)))
+  (define-key mpsyt-mode-map (kbd "C-c C-n") 'mpsyt-mode-next-track)
+  (define-key mpsyt-mode-map (kbd "C-c C-p") 'mpsyt-mode-previous-track)
+  (define-key mpsyt-mode-map (kbd "C-c C-f") 'mpsyt-mode-seek-forward)
+  (define-key mpsyt-mode-map (kbd "C-c C-b") 'mpsyt-mode-seek-backward))
 
 (define-derived-mode mpsyt-mode comint-mode "mpsyt"
   "Major mode for `mpsyt'.
