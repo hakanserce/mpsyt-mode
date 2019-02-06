@@ -23,16 +23,17 @@
 (defun mpsyt-mode-next-track ()
   "Sends the command to move to the next song in the playlist during playback."
   (interactive)
-  (mpsyt-mode--send-command "n"))
+  (mpsyt-mode--send-command ">"))
 
 (defun mpsyt-mode-previous-track ()
   "Sends the command to move to the previous song in the playlist during playback."
   (interactive)
-  (mpsyt-mode--send-command "p"))
+  (mpsyt-mode--send-command "<"))
 
 (defun mpsyt-mode--send-command (command)
   "Sends a string COMMAND to the underlying mpsyt process."
-  (comint-send-string nil command))
+  (insert command)
+  (comint-send-input t t))
 
 (defvar mpsyt-mode-prompt-regexp "^>"
   "Prompt for mpsyt command.")
