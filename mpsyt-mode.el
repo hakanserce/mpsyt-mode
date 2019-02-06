@@ -60,16 +60,14 @@
        (mpsyt-mode-next-track ">" "next track")
        (mpsyt-mode-previous-track "<" "previous track")
        (mpsyt-mode-pause " " "pause")))
+  (mapc (lambda (alist) (apply 'mpsyt-mode--define-action alist)) mpsyt-mode--playback-actions)
   (setq mpsyt-mode-map (let ((map (nconc (make-sparse-keymap) comint-mode-map)))
     (define-key map "\t" 'completion-at-point)
     (define-key map (kbd "C-c C-n") 'mpsyt-mode-next-track)
     (define-key map (kbd "C-c C-p") 'mpsyt-mode-previous-track)
     (define-key map (kbd "C-c C-f") 'mpsyt-mode-seek-forward)
     (define-key map (kbd "C-c C-b") 'mpsyt-mode-seek-backward)
-    map))
-  (mapc (lambda (alist) (apply 'mpsyt-mode--define-action alist)) mpsyt-mode--playback-actions))
-
-
+    map)))
 
 (define-derived-mode mpsyt-mode comint-mode "mpsyt"
   "Major mode for `mpsyt'.
