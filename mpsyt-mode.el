@@ -16,20 +16,10 @@
    (nconc (make-sparse-keymap) comint-mode-map)
   "Basic mode map for mpsyt-mode.")
 
-(defun mpsyt-mode--define-action (action-symbol action-command action-doc)
-  "Function to define an action (ACTION-SYMBOL) to send ACTION-COMMAND to mpsyt.  ACTION-DOC is the documentation for action."
-  (eval `(defun ,action-symbol ()
-    ,(format "Send a command %s to mpsyt." action-doc)
-    (interactive)
-    (mpsyt-mode--send-command ,action-command))))
-
 (defun mpsyt-mode--send-command (command)
   "Sends a string COMMAND to the underlying mpsyt process."
   (insert command)
   (comint-send-input t t))
-
-(defvar mpsyt-mode--playback-actions
-  "Actions available during playback.")
 
 (defvar mpsyt-mode-prompt-regexp "^>"
   "Prompt for mpsyt command.")
@@ -54,22 +44,33 @@
 (defvar mpsyt-mode--right (kbd "ESC [ C"))
 (defvar mpsyt-mode--left (kbd "ESC [ D"))
 
+(defun mpsyt-mode--init-playback-actions ()
+  "Set playback actions."
+  (let ((actions
+        '(("seek-forward" "C-<right>" mpsyt-mode--right)
+          ("seek-backward" "C-<left>" mpsyt-mode--left)
+          ("pause" "SPC" " ")
+          ("next-track" "C->" ">")
+          ("prev-track" "C-<" "<"))))
+    (mapc (lambda (alist) (apply 'mpsyt-mode--define-action alist)) actions)))
+
+(defun mpsyt-mode--define-action (action-name action-key action-mpsyt-command)
+  "Function to define an action (ACTION-NAME) to send ACTION-MPSYT-COMMAND to mpsyt, and bind it to ACTION-KEY."
+  (let ((action-command-symbol (intern (format "mpsyt-mode-%s" action-name)))
+        (map mpsyt-mode-map))
+    (eval `(defun ,action-command-symbol ()
+             ,(format "Send a command %s to mpsyt." action-mpsyt-command)
+             (interactive)
+             (mpsyt-mode--send-command ,action-mpsyt-command)))
+    (define-key map (kbd action-key) action-command-symbol)))
+  
 (defun mpsyt-mode--initialize ()
   "Helper function to initialize mpsyt."
   (setq comint-process-echoes t)
   (setq comint-use-prompt-regexp t)
   (setq comint-input-sender-no-newline t)
-  (setq mpsyt-mode--playback-actions
-      '((mpsyt-mode-seek-forward mpsyt-mode--right "seek forward")
-       (mpsyt-mode-seek-backward mpsyt-mode--left "seek backward")
-       (mpsyt-mode-next-track ">" "next track")
-       (mpsyt-mode-previous-track "<" "previous track")
-       (mpsyt-mode-pause " " "pause")))
-  (mapc (lambda (alist) (apply 'mpsyt-mode--define-action alist)) mpsyt-mode--playback-actions)
-  (define-key mpsyt-mode-map (kbd "C-c C-n") 'mpsyt-mode-next-track)
-  (define-key mpsyt-mode-map (kbd "C-c C-p") 'mpsyt-mode-previous-track)
-  (define-key mpsyt-mode-map (kbd "C-c C-f") 'mpsyt-mode-seek-forward)
-  (define-key mpsyt-mode-map (kbd "C-c C-b") 'mpsyt-mode-seek-backward))
+  (mpsyt-mode--init-playback-actions))
+
 
 (define-derived-mode mpsyt-mode comint-mode "mpsyt"
   "Major mode for `mpsyt'.
