@@ -47,11 +47,11 @@
 (defun mpsyt-mode--init-playback-actions ()
   "Set playback actions."
   (let ((actions
-        '(("seek-forward" "C-<right>" mpsyt-mode--right)
-          ("seek-backward" "C-<left>" mpsyt-mode--left)
-          ("pause" "C-SPC" " ")
-          ("next-track" "C->" ">")
-          ("prev-track" "C-<" "<"))))
+        '(("seek-forward" "<right>" mpsyt-mode--right)
+          ("seek-backward" "<left>" mpsyt-mode--left)
+          ("pause" "SPC" " ")
+          ("next-track" ">" ">")
+          ("prev-track" "<" "<"))))
     (mapc (lambda (alist) (apply 'mpsyt-mode--define-action alist)) actions)))
 
 (defun mpsyt-mode--define-action (action-name action-key action-mpsyt-command)
@@ -61,8 +61,12 @@
     (eval `(defun ,action-command-symbol ()
              ,(format "Send a command %s to mpsyt." action-mpsyt-command)
              (interactive)
-             (mpsyt-mode--send-command ,action-mpsyt-command)))
-    (define-key map (kbd action-key) action-command-symbol)))
+             (mpsyt-mode--send-command ,action-mpsyt-command)
+             (set-temporary-overlay-map
+              (let ((short-repeat-map (make-sparse-keymap)))
+                (define-key short-repeat-map ,(kbd action-key) ',action-command-symbol)
+                short-repeat-map))))
+    (define-key map (kbd (format "C-c %s" action-key)) action-command-symbol)))
   
 (defun mpsyt-mode--initialize ()
   "Helper function to initialize mpsyt."
