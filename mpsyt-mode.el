@@ -49,6 +49,10 @@
              mpsyt-program mpsyt-mode-command-arguments)
       (mpsyt-mode))))
 
+(defvar mpsyt-mode--up (kbd "ESC [ A"))
+(defvar mpsyt-mode--down (kbd "ESC [ B"))
+(defvar mpsyt-mode--right (kbd "ESC [ C"))
+(defvar mpsyt-mode--left (kbd "ESC [ D"))
 
 (defun mpsyt-mode--initialize ()
   "Helper function to initialize mpsyt."
@@ -56,8 +60,8 @@
   (setq comint-use-prompt-regexp t)
   (setq comint-input-sender-no-newline t)
   (setq mpsyt-mode--playback-actions
-      '((mpsyt-mode-seek-forward (kbd "ESC [ C") "seek forward")
-       (mpsyt-mode-seek-backward (kbd "ESC [ D") "seek backward")
+      '((mpsyt-mode-seek-forward mpsyt-mode--right "seek forward")
+       (mpsyt-mode-seek-backward mpsyt-mode--left "seek backward")
        (mpsyt-mode-next-track ">" "next track")
        (mpsyt-mode-previous-track "<" "previous track")
        (mpsyt-mode-pause " " "pause")))
