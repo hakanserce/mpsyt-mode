@@ -49,7 +49,7 @@
   (let ((actions
         '(("seek-forward" "C-<right>" mpsyt-mode--right)
           ("seek-backward" "C-<left>" mpsyt-mode--left)
-          ("pause" "SPC" " ")
+          ("pause" "C-SPC" " ")
           ("next-track" "C->" ">")
           ("prev-track" "C-<" "<"))))
     (mapc (lambda (alist) (apply 'mpsyt-mode--define-action alist)) actions)))
